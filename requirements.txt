@@ -1,0 +1,7 @@
+scikit-learn
+matplotlib
+gensim
+python-dotenv>=1.0.1
+google-genai>=1.0.0
+openai>=1.0.0
+ 
