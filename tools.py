@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -33,13 +34,13 @@ calculator - use it when you need to calculate something
 get_weather - use it when you need to get the weather of a city
 get_current_time - use it when you need to get the current time
 
+Return your tool call strictly as a JSON object formatted like:
 {
-  "tool" :  tool_name,
-   "input" : tool_input
+  "tool": "tool_name",
+  "input": "tool_input"
+}
 
- }
-
-if no tool is needed , respond normally
+If no tool is needed, respond normally.
 """
 
 if __name__ == "__main__":
@@ -55,4 +56,23 @@ if __name__ == "__main__":
         ]
 
         response = get_llm_response(messages)
-        print(f"bot: {response}")
+        
+        try:
+            clean = response.strip()
+            if clean.startswith("```json"):
+                clean = clean[7:-3].strip()
+            elif clean.startswith("```"):
+                clean = clean[3:-3].strip()
+            
+            data = json.loads(clean)
+            tool = data.get("tool")
+            tool_input = data.get("input", "")
+
+            if tool in TOOLS:
+                print(f"\nusing tool : {tool}")
+                result = TOOLS[tool](tool_input) if tool_input else TOOLS[tool]()
+                print(f"bot (tool output): {result}")
+            else:
+                print(f"bot: {response}")
+        except Exception:
+            print(f"bot: {response}")
